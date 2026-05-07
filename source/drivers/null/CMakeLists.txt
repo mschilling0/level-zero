@@ -20,7 +20,7 @@ target_include_directories(${TARGET_NAME}
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-if(INSTALL_NULL_DRIVER)
+if(INSTALL_NULL_DRIVER AND LEVEL_ZERO_INSTALL)
     install(TARGETS ze_null
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT level-zero-devel
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT level-zero
@@ -105,7 +105,7 @@ if(BUILD_L0_LOADER_TESTS)
     target_compile_definitions(ze_intel_npu PUBLIC ZEL_NULL_DRIVER_ID=4 ZEL_NULL_DRIVER_TYPE_NPU=1)
 
     # Install fake drivers to separate directory
-    if(INSTALL_NULL_DRIVER)
+    if(INSTALL_NULL_DRIVER AND LEVEL_ZERO_INSTALL)
         install(TARGETS ze_intel_gpu
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}_fake COMPONENT level-zero-devel
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}_fake COMPONENT level-zero
@@ -145,7 +145,7 @@ target_compile_definitions(ze_null_test1 PUBLIC ZEL_NULL_DRIVER_ID=1)
 target_compile_definitions(ze_null_test2 PUBLIC ZEL_NULL_DRIVER_ID=2)
 target_compile_definitions(ze_null PUBLIC ZEL_NULL_DRIVER_ID=1)
 
-if(INSTALL_NULL_DRIVER)
+if(INSTALL_NULL_DRIVER AND LEVEL_ZERO_INSTALL)
     install(TARGETS ze_null_test1
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT level-zero-devel
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT level-zero

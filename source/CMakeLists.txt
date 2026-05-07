@@ -67,24 +67,26 @@ if(BUILD_INSTALLER)
     set(LIB_COMPONENT_STRING "Loader")
 endif()
 
-install(TARGETS ze_loader
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${SDK_COMPONENT_STRING}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_COMPONENT_STRING}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_COMPONENT_STRING}
-    NAMELINK_COMPONENT ${SDK_COMPONENT_STRING}
-)
-
-# EXCLUDE_FROM_ALL: canonical libze1/libze-dev components are for CPack .deb packaging only.
-# 'make install' uses the level-zero/level-zero-devel components above to avoid duplicate
-# entries in install_manifest.txt which would cause 'xargs rm' uninstall to fail.
-if(CANONICAL_LIB_COMPONENT)
+if(LEVEL_ZERO_INSTALL)
     install(TARGETS ze_loader
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_SDK_COMPONENT}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
-        NAMELINK_COMPONENT ${CANONICAL_SDK_COMPONENT}
-        EXCLUDE_FROM_ALL
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${SDK_COMPONENT_STRING}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_COMPONENT_STRING}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_COMPONENT_STRING}
+        NAMELINK_COMPONENT ${SDK_COMPONENT_STRING}
     )
+
+    # EXCLUDE_FROM_ALL: canonical libze1/libze-dev components are for CPack .deb packaging only.
+    # 'make install' uses the level-zero/level-zero-devel components above to avoid duplicate
+    # entries in install_manifest.txt which would cause 'xargs rm' uninstall to fail.
+    if(CANONICAL_LIB_COMPONENT)
+        install(TARGETS ze_loader
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_SDK_COMPONENT}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
+            NAMELINK_COMPONENT ${CANONICAL_SDK_COMPONENT}
+            EXCLUDE_FROM_ALL
+        )
+    endif()
 endif()
 
 if(NOT BUILD_INSTALLER)
@@ -95,15 +97,17 @@ file(RELATIVE_PATH pkgconfig_lib_dir "${CMAKE_INSTALL_PREFIX}" "${CMAKE_INSTALL_
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libze_loader.pc.in ${CMAKE_CURRENT_BINARY_DIR}/libze_loader.pc @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/level-zero.pc.in ${CMAKE_CURRENT_BINARY_DIR}/level-zero.pc @ONLY)
 
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libze_loader.pc"
-              "${CMAKE_CURRENT_BINARY_DIR}/level-zero.pc"
-        DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig" COMPONENT ${SDK_COMPONENT_STRING})
-
-if(CANONICAL_SDK_COMPONENT)
-    # EXCLUDE_FROM_ALL: CPack-only; avoids duplicate install_manifest.txt entries.
+if(LEVEL_ZERO_INSTALL)
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libze_loader.pc"
                   "${CMAKE_CURRENT_BINARY_DIR}/level-zero.pc"
-            DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig" COMPONENT ${CANONICAL_SDK_COMPONENT}
-            EXCLUDE_FROM_ALL)
+            DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig" COMPONENT ${SDK_COMPONENT_STRING})
+
+    if(CANONICAL_SDK_COMPONENT)
+        # EXCLUDE_FROM_ALL: CPack-only; avoids duplicate install_manifest.txt entries.
+        install(FILES "${CMAKE_CURRENT_BINARY_DIR}/libze_loader.pc"
+                      "${CMAKE_CURRENT_BINARY_DIR}/level-zero.pc"
+                DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig" COMPONENT ${CANONICAL_SDK_COMPONENT}
+                EXCLUDE_FROM_ALL)
+    endif()
 endif()
 endif()

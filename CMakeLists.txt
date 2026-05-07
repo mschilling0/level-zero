@@ -16,6 +16,8 @@ endif()
 project(level-zero VERSION 1.28.4)
 include(GNUInstallDirs)
 
+option(LEVEL_ZERO_INSTALL "Enable Level Zero installation rules" ON)
+
 find_package(Git)
 if(Git_FOUND)
 	if(MSVC)
@@ -252,46 +254,48 @@ if(BUILD_INSTALLER)
     set(SDK_COMPONENT_STRING "SDK")
 endif()
 
-install(FILES ${LEVEL_ZERO_API_HEADERS}
-    DESTINATION ./include/level_zero
-    COMPONENT ${SDK_COMPONENT_STRING}
-)
+if(LEVEL_ZERO_INSTALL)
+    install(FILES ${LEVEL_ZERO_API_HEADERS}
+        DESTINATION ./include/level_zero
+        COMPONENT ${SDK_COMPONENT_STRING}
+    )
 
-file(GLOB LEVEL_ZERO_LAYERS_API_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/layers/*.h")
+    file(GLOB LEVEL_ZERO_LAYERS_API_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/layers/*.h")
 
-install(FILES ${LEVEL_ZERO_LAYERS_API_HEADERS}
-    DESTINATION ./include/level_zero/layers
-    COMPONENT ${SDK_COMPONENT_STRING}
-)
+    install(FILES ${LEVEL_ZERO_LAYERS_API_HEADERS}
+        DESTINATION ./include/level_zero/layers
+        COMPONENT ${SDK_COMPONENT_STRING}
+    )
 
-file(GLOB LEVEL_ZERO_LOADER_API_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/loader/*.h")
+    file(GLOB LEVEL_ZERO_LOADER_API_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/loader/*.h")
 
-install(FILES ${LEVEL_ZERO_LOADER_API_HEADERS}
-    DESTINATION ./include/level_zero/loader
-    COMPONENT ${SDK_COMPONENT_STRING}
-)
+    install(FILES ${LEVEL_ZERO_LOADER_API_HEADERS}
+        DESTINATION ./include/level_zero/loader
+        COMPONENT ${SDK_COMPONENT_STRING}
+    )
 
 # Canonical Ubuntu/Debian package naming (libze1 / libze-dev) mirrors Canonical's own packaging.
 # EXCLUDE_FROM_ALL prevents these rules from running during 'make install' — the same files are
 # already installed by the level-zero / level-zero-devel components above. CPack ignores
 # EXCLUDE_FROM_ALL when building component packages, so 'cmake --build . --target package'
 # still produces all four .deb files without duplicating entries in install_manifest.txt.
-if(CANONICAL_SDK_COMPONENT)
-    install(FILES ${LEVEL_ZERO_API_HEADERS}
-        DESTINATION ./include/level_zero
-        COMPONENT ${CANONICAL_SDK_COMPONENT}
-        EXCLUDE_FROM_ALL
-    )
-    install(FILES ${LEVEL_ZERO_LAYERS_API_HEADERS}
-        DESTINATION ./include/level_zero/layers
-        COMPONENT ${CANONICAL_SDK_COMPONENT}
-        EXCLUDE_FROM_ALL
-    )
-    install(FILES ${LEVEL_ZERO_LOADER_API_HEADERS}
-        DESTINATION ./include/level_zero/loader
-        COMPONENT ${CANONICAL_SDK_COMPONENT}
-        EXCLUDE_FROM_ALL
-    )
+    if(CANONICAL_SDK_COMPONENT)
+        install(FILES ${LEVEL_ZERO_API_HEADERS}
+            DESTINATION ./include/level_zero
+            COMPONENT ${CANONICAL_SDK_COMPONENT}
+            EXCLUDE_FROM_ALL
+        )
+        install(FILES ${LEVEL_ZERO_LAYERS_API_HEADERS}
+            DESTINATION ./include/level_zero/layers
+            COMPONENT ${CANONICAL_SDK_COMPONENT}
+            EXCLUDE_FROM_ALL
+        )
+        install(FILES ${LEVEL_ZERO_LOADER_API_HEADERS}
+            DESTINATION ./include/level_zero/loader
+            COMPONENT ${CANONICAL_SDK_COMPONENT}
+            EXCLUDE_FROM_ALL
+        )
+    endif()
 endif()
 
 if (MSVC)
@@ -355,10 +359,12 @@ if(NOT DEFINED CPACK_GENERATOR)
 
         set(CMAKE_INSTALL_PREFIX "LevelZeroSDK/${PROJECT_VERSION}/")
         # Add the script to the install directory
-        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/scripts/level_zero_sdk_setup.ps1"
-            DESTINATION ./scripts
-            COMPONENT ${SDK_COMPONENT_STRING}
-        )
+        if(LEVEL_ZERO_INSTALL)
+            install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/scripts/level_zero_sdk_setup.ps1"
+                DESTINATION ./scripts
+                COMPONENT ${SDK_COMPONENT_STRING}
+            )
+        endif()
 
         set(CPACK_WIX_PATCH_FILE "${CMAKE_CURRENT_SOURCE_DIR}/scripts/wix_env_installation.wxs")
 

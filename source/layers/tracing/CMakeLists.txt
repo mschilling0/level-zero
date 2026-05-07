@@ -63,22 +63,24 @@ if(MSVC AND L0_DLL_INTEGRITY_CHECKS)
     set_target_properties(ze_tracing_layer PROPERTIES LINK_FLAGS "${CMAKE_CXX_LINKER_WRAPPER_FLAG}/INTEGRITYCHECK")
 endif()
 
-install(TARGETS ze_tracing_layer
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${SDK_COMPONENT_STRING}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_COMPONENT_STRING}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_COMPONENT_STRING}
-    NAMELINK_COMPONENT ${SDK_COMPONENT_STRING}
-)
-
-# EXCLUDE_FROM_ALL: canonical libze1/libze-dev components are for CPack .deb packaging only.
-# 'make install' uses the level-zero/level-zero-devel components above to avoid duplicate
-# entries in install_manifest.txt which would cause 'xargs rm' uninstall to fail.
-if(CANONICAL_LIB_COMPONENT)
+if(LEVEL_ZERO_INSTALL)
     install(TARGETS ze_tracing_layer
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_SDK_COMPONENT}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
-        NAMELINK_COMPONENT ${CANONICAL_SDK_COMPONENT}
-        EXCLUDE_FROM_ALL
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${SDK_COMPONENT_STRING}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${LIB_COMPONENT_STRING}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${LIB_COMPONENT_STRING}
+        NAMELINK_COMPONENT ${SDK_COMPONENT_STRING}
     )
+
+    # EXCLUDE_FROM_ALL: canonical libze1/libze-dev components are for CPack .deb packaging only.
+    # 'make install' uses the level-zero/level-zero-devel components above to avoid duplicate
+    # entries in install_manifest.txt which would cause 'xargs rm' uninstall to fail.
+    if(CANONICAL_LIB_COMPONENT)
+        install(TARGETS ze_tracing_layer
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_SDK_COMPONENT}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${CANONICAL_LIB_COMPONENT}
+            NAMELINK_COMPONENT ${CANONICAL_SDK_COMPONENT}
+            EXCLUDE_FROM_ALL
+        )
+    endif()
 endif()
